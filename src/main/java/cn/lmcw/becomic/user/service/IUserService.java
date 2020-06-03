@@ -4,6 +4,9 @@ import cn.lmcw.becomic.user.entity.User;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.apache.ibatis.annotations.Insert;
+import org.wildfly.common.annotation.NotNull;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -23,6 +26,6 @@ public interface IUserService extends IService<User> {
 
     String getToken(User user);
 
-    boolean register(String uname, String password);
+    boolean register(String uname, String password, @NotNull Map<String, Object> extras);
 
 }

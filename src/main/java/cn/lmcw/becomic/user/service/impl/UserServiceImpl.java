@@ -1,13 +1,19 @@
 package cn.lmcw.becomic.user.service.impl;
 
 import cn.lmcw.becomic.comm.JwtAuth;
+import cn.lmcw.becomic.user.entity.RegisterMeta;
 import cn.lmcw.becomic.user.entity.User;
 import cn.lmcw.becomic.user.mapper.UserMapper;
+import cn.lmcw.becomic.user.service.IRegisterMetaService;
 import cn.lmcw.becomic.user.service.IUserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -22,6 +28,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Value("${jwt.secret}")
     protected String secret;
+
+    @Autowired
+    protected IRegisterMetaService registerMetaService;
 
     public User findUserByNameAndPassword(String uname, String password) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<User>()
@@ -54,7 +63,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
-    public boolean register(String uname, String password) {
+    public boolean register(String uname, String password, Map<String, Object> extras) {
 
         User user = new User();
         user.setUname(uname);
@@ -64,7 +73,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         //写入meta数据
         if (addRet) {
 
+            User registerUser = query().eq("uname", uname).select("id").one();
+
+            RegisterMeta registerMeta = new RegisterMeta();
+            registerMeta.setUid(registerUser.getId());
+            if (extras.containsKey("User-Agent")) {
+                registerMeta.setUserAgent((String) extras.getOrDefault("User-Agent", ""));
+            }
+            if (extras.containsKey("IP")) {
+                registerMeta.setIp((String) extras.getOrDefault("IP", ""));
+            }
+
+            if (extras.containsKey("PUID")) {
+                registerMeta.setPUid((Integer) extras.getOrDefault("PUID", 1));
+            }
+
+
+            addRet = registerMetaService.saveOrUpdate(registerMeta);
+
         }
+
 
         return addRet;
     }

@@ -1,6 +1,7 @@
 package cn.lmcw.becomic.user.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 
 import java.beans.Transient;
@@ -48,6 +49,7 @@ public class User implements Serializable {
      */
     private String options;
 
+    @TableField(exist = false)
     private String token;
 
 }
